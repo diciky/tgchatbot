@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: telegram_bot
+    restart: always
+    volumes:
+      - ./data:/app/data  # 挂载数据目录，用于持久化数据库
+      - ./.env:/app/.env  # 挂载环境变量文件
+    environment:
+      - TZ=Asia/Shanghai  # 设置时区
+    networks:
+      - bot_network
+    depends_on:
+      - backup
+
+  backup:
+    build: .
+    container_name: telegram_bot_backup
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - bot_network
+    command: python backup.py
+    restart: "no"
+
+networks:
+  bot_network:
+    driver: bridge 

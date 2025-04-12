@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Bot 管理面板</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .stat-card {
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .message-card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .file-preview {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 sidebar p-3">
+                <h4 class="mb-4">管理面板</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-page="dashboard">
+                            <i class="bi bi-speedometer2"></i> 仪表盘
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="messages">
+                            <i class="bi bi-chat-dots"></i> 消息管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="groups">
+                            <i class="bi bi-people"></i> 群组管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="users">
+                            <i class="bi bi-person"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="keywords">
+                            <i class="bi bi-tags"></i> 关键词管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="alerts">
+                            <i class="bi bi-exclamation-triangle"></i> 告警管理
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link text-danger" href="#" id="logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="col-md-10 main-content">
+                <!-- 仪表盘 -->
+                <div id="dashboard" class="page-content">
+                    <h2 class="mb-4">仪表盘</h2>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-card bg-primary text-white">
+                                <h5>总用户数</h5>
+                                <h3 id="total-users">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-success text-white">
+                                <h5>总群组数</h5>
+                                <h3 id="total-groups">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-info text-white">
+                                <h5>总消息数</h5>
+                                <h3 id="total-messages">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-warning text-white">
+                                <h5>24小时活跃群组</h5>
+                                <h3 id="active-groups">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息管理 -->
+                <div id="messages" class="page-content d-none">
+                    <h2 class="mb-4">消息管理</h2>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="messages-list"></div>
+                            <nav>
+                                <ul class="pagination justify-content-center" id="messages-pagination"></ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 群组管理 -->
+                <div id="groups" class="page-content d-none">
+                    <h2 class="mb-4">群组管理</h2>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="groups-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户管理 -->
+                <div id="users" class="page-content d-none">
+                    <h2 class="mb-4">用户管理</h2>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="users-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关键词管理 -->
+                <div id="keywords" class="page-content d-none">
+                    <h2 class="mb-4">关键词管理</h2>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="keywords-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 告警管理 -->
+                <div id="alerts" class="page-content d-none">
+                    <h2 class="mb-4">告警管理</h2>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="alerts-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // 页面切换
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.id !== 'logout') {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.page-content').forEach(page => {
+                        page.classList.add('d-none');
+                    });
+                    document.getElementById(link.dataset.page).classList.remove('d-none');
+                    document.querySelectorAll('.nav-link').forEach(l => {
+                        l.classList.remove('active');
+                    });
+                    link.classList.add('active');
+                });
+            }
+        });
+
+        // 退出登录
+        document.getElementById('logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await axios.post('/logout');
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('退出登录失败:', error);
+            }
+        });
+
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const response = await axios.get('/api/stats');
+                const data = response.data;
+                document.getElementById('total-users').textContent = data.total_users;
+                document.getElementById('total-groups').textContent = data.total_groups;
+                document.getElementById('total-messages').textContent = data.total_messages;
+                document.getElementById('active-groups').textContent = data.active_groups;
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+
+        // 加载消息列表
+        async function loadMessages(page = 1) {
+            try {
+                const response = await axios.get(`/api/messages?page=${page}&per_page=20`);
+                const messages = response.data;
+                const messagesList = document.getElementById('messages-list');
+                messagesList.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    const card = document.createElement('div');
+                    card.className = 'card message-card';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    用户: ${msg.user.username || msg.user.first_name}
+                                </h6>
+                                <small class="text-muted">${new Date(msg.created_at).toLocaleString()}</small>
+                            </div>
+                            <p class="card-text">${msg.content || ''}</p>
+                            ${msg.file_path ? `
+                                <div class="mt-2">
+                                    <img src="/api/files/${msg.file_path}" class="file-preview" alt="文件预览">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    messagesList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载消息列表失败:', error);
+            }
+        }
+
+        // 加载群组列表
+        async function loadGroups() {
+            try {
+                const response = await axios.get('/api/groups');
+                const groups = response.data;
+                const groupsList = document.getElementById('groups-list');
+                groupsList.innerHTML = '';
+                
+                groups.forEach(group => {
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${group.title}</h5>
+                            <p class="card-text">
+                                类型: ${group.type}<br>
+                                消息数: ${group.message_count}<br>
+                                用户数: ${group.user_count}<br>
+                                监控状态: ${group.is_monitoring ? '开启' : '关闭'}
+                            </p>
+                        </div>
+                    `;
+                    groupsList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载群组列表失败:', error);
+            }
+        }
+
+        // 加载用户列表
+        async function loadUsers() {
+            try {
+                const response = await axios.get('/api/users');
+                const users = response.data;
+                const usersList = document.getElementById('users-list');
+                usersList.innerHTML = '';
+                
+                users.forEach(user => {
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${user.username || user.first_name}</h5>
+                            <p class="card-text">
+                                Telegram ID: ${user.telegram_id}<br>
+                                积分: ${user.points}<br>
+                                警告次数: ${user.warning_count}<br>
+                                验证状态: ${user.is_verified ? '已验证' : '未验证'}<br>
+                                管理员: ${user.is_admin ? '是' : '否'}
+                            </p>
+                        </div>
+                    `;
+                    usersList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+            }
+        }
+
+        // 加载关键词列表
+        async function loadKeywords() {
+            try {
+                const response = await axios.get('/api/keywords');
+                const keywords = response.data;
+                const keywordsList = document.getElementById('keywords-list');
+                keywordsList.innerHTML = '';
+                
+                keywords.forEach(keyword => {
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${keyword.word}</h5>
+                            <p class="card-text">
+                                群组ID: ${keyword.group_id}<br>
+                                严重程度: ${keyword.severity}<br>
+                                状态: ${keyword.is_active ? '启用' : '禁用'}
+                            </p>
+                        </div>
+                    `;
+                    keywordsList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载关键词列表失败:', error);
+            }
+        }
+
+        // 加载告警列表
+        async function loadAlerts() {
+            try {
+                const response = await axios.get('/api/alerts');
+                const alerts = response.data;
+                const alertsList = document.getElementById('alerts-list');
+                alertsList.innerHTML = '';
+                
+                alerts.forEach(alert => {
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${alert.alert_type}</h5>
+                            <p class="card-text">
+                                消息: ${alert.message}<br>
+                                严重程度: ${alert.severity}<br>
+                                状态: ${alert.is_resolved ? '已解决' : '未解决'}<br>
+                                时间: ${new Date(alert.created_at).toLocaleString()}
+                            </p>
+                        </div>
+                    `;
+                    alertsList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载告警列表失败:', error);
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadMessages();
+            loadGroups();
+            loadUsers();
+            loadKeywords();
+            loadAlerts();
+        });
+    </script>
+</body>
+</html> 
